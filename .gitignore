@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+venv/
+.env
+.config/
+config.json
+vosk-model-*
+piper/
+piper_voices/
+*.wav
+*.log
+.DS_Store

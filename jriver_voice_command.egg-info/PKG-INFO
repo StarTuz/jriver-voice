@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: jriver-voice-command
+Version: 0.1.0
+Requires-Dist: vosk
+Requires-Dist: pyaudio
+Requires-Dist: requests
+Dynamic: requires-dist
