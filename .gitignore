@@ -10,3 +10,16 @@ piper_voices/
 *.wav
 *.log
 .DS_Store
+# Debug and Test files
+debug_*.py
+test_*.py
+check_*.py
+list_*.py
+find_*.py
+mic_test.wav
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+*.tar.gz
