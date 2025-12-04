@@ -82,6 +82,8 @@ Settings are stored in `~/.config/jriver-voice/config.json`. You can edit this f
 *   `WAKE_WORD`: Change "Alice" to something else.
 *   `COMMAND_TIMEOUT`: How long to wait for a command (default: 5s).
 *   `JRIVER_IP` / `PORT`: Connection details.
+*   `ACCESS_KEY`: Unique key needd to connect to Media Network share DLNA. Should ask during initial run.
+*   `VOSK_MODEL_PATH`: Change the vosk model to your liking.
 
 ## Troubleshooting
 
