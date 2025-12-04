@@ -2,6 +2,8 @@
 
 A privacy-focused, offline voice assistant for JRiver Media Center on Linux. Control your music library with natural voice commands, without sending audio to the cloud. Prompted and teted with Gemini 3/Claude Sonnet 4.5 (Thinking) under Gemini Antigravity IDE. 
 
+> **Note:** This is an unofficial community project and is not affiliated with, endorsed by, or connected to JRiver, Inc.
+
 ## Features
 
 *   **Offline Recognition:** Uses Vosk for fast, local speech-to-text.
