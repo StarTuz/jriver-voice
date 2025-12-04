@@ -1,3 +1,5 @@
+LICENSE
+README.md
 config.json
 config.py
 jriver_voice.py

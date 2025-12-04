@@ -1,7 +1,9 @@
 Metadata-Version: 2.4
 Name: jriver-voice-command
 Version: 0.1.0
+License-File: LICENSE
 Requires-Dist: vosk
 Requires-Dist: pyaudio
 Requires-Dist: requests
+Dynamic: license-file
 Dynamic: requires-dist

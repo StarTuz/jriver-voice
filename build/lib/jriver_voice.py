@@ -26,6 +26,10 @@ WAKE_WORD = cfg.get("WAKE_WORD")
 # ----------------------------
 
 class VoiceAssistant:
+    """
+    Main class for the JRiver Voice Assistant.
+    Handles wake word detection, command processing, and JRiver MCWS interaction.
+    """
     STATE_LISTENING = 0          # Listening for wake word
     STATE_WAITING_SELECTION = 1  # Waiting for user to select from list
     STATE_COMMAND_MODE = 2       # Wake word detected, listening for commands
@@ -33,6 +37,12 @@ class VoiceAssistant:
     COMMAND_TIMEOUT = cfg.get("COMMAND_TIMEOUT")  # Seconds to wait for command after wake word
 
     def __init__(self, wake_word=WAKE_WORD):
+        """
+        Initialize the assistant.
+        
+        Args:
+            wake_word (str): The keyword to activate command mode (default: "Alice").
+        """
         self.state = self.STATE_LISTENING
         self.context_items = [] 
         self.current_artist = None
@@ -79,7 +89,10 @@ class VoiceAssistant:
         finally:
             # Resume microphone stream
             if self.stream and self.stream.is_stopped():
-                self.stream.start_stream()
+                try:
+                    self.stream.start_stream()
+                except Exception as e:
+                    print(f"⚠️ Could not restart microphone stream: {e}")
 
     def send_mcws_command(self, command_path, extra_params="", return_xml=False):
         """Sends a command to JRiver's MCWS API."""
@@ -1044,12 +1057,54 @@ class VoiceAssistant:
             print(f"Error listing tracks: {e}")
             self.speak("I couldn't get playlist info.")
 
+    def play_random_genre(self, genre_name):
+        """Plays a random mix of a specific genre using PlayDoctor."""
+        import difflib
+        import urllib.parse
+
+        genres = self.get_all_values("Genre")
+        
+        # Fuzzy match
+        best_match = None
+        highest_score = 0.0
+        
+        for g in genres:
+            score = difflib.SequenceMatcher(None, genre_name.lower(), g.lower()).ratio()
+            if score > highest_score:
+                highest_score = score
+                best_match = g
+        
+        if highest_score > 0.6:
+            print(f"🎯 Matched Genre: '{best_match}' (Score: {highest_score:.2f})")
+            self.speak(f"Playing random {best_match} music.")
+            
+            # Use PlayDoctor with Genre seed
+            # URL Encoded genre
+            encoded_genre = urllib.parse.quote(best_match)
+            # PlayDoctor format: Seed=[Genre]=[Rock]
+            params = f"Seed=[Genre]=[{encoded_genre}]&Action=Play"
+            self.send_mcws_command("Playback/PlayDoctor", extra_params=params)
+            
+            # Announce what's playing
+            import time
+            time.sleep(1)
+            self.what_is_playing_silent()
+        else:
+            self.speak(f"I couldn't find a genre named {genre_name}.")
+
     def process_command(self, text):
         """Maps spoken text to commands."""
+        if not text:
+            return
         text = text.lower().strip()
         
         # Clean up common artifacts from voice recognition
         text = text.strip()
+        
+        # Remove "the" from the start if present (e.g. "the alice")
+        if text.startswith("the "):
+            text = text[4:].strip()
+            
         while text.startswith("the "):
             text = text[4:]
         while text.endswith(" the"):
@@ -1131,9 +1186,38 @@ class VoiceAssistant:
         elif "pause" in text:
             self.send_mcws_command("Playback/Pause")
             
-        elif "stop" in text:
+        # Common misrecognition fixes
+        if text.startswith("but "):
+            text = text.replace("but ", "play ", 1)
+            print(f"🔧 Corrected 'but' to 'play': {text}")
+
+        if "stop" in text:
             self.send_mcws_command("Playback/Stop")
             
+        elif "play random" in text:
+            try:
+                # Check if there's a genre specified
+                if text == "play random":
+                    # Generic PlayDoctor
+                    self.speak("Playing random music.")
+                    self.send_mcws_command("Playback/PlayDoctor")
+                    time.sleep(1)
+                    self.what_is_playing_silent()
+                else:
+                    # Extract genre: "play random rock" -> "rock"
+                    genre = text.replace("play random", "").strip()
+                    if genre:
+                        self.play_random_genre(genre)
+                    else:
+                        # Fallback to generic if extraction fails
+                        self.speak("Playing random music.")
+                        self.send_mcws_command("Playback/PlayDoctor")
+                        time.sleep(1)
+                        self.what_is_playing_silent()
+            except Exception as e:
+                print(f"❌ Error in play random: {e}")
+                self.speak("Something went wrong playing random music.")
+
         elif text in ["play", "resume", "start music"]:
             self.send_mcws_command("Playback/Play")
 
@@ -1372,14 +1456,25 @@ def main():
                     # Stream closed (likely quitting), break out of loop
                     break
                 else:
-                    raise e
+                    print(f"⚠️ Audio stream error: {e}")
+                    time.sleep(1)
+            except Exception as e:
+                print(f"⚠️ Unexpected error in main loop: {e}")
+                time.sleep(1)
                     
     except KeyboardInterrupt:
         print("\nStopping...")
+    except Exception as e:
+        print(f"\n❌ Fatal error: {e}")
+        import traceback
+        traceback.print_exc()
     finally:
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
+        try:
+            stream.stop_stream()
+            stream.close()
+            p.terminate()
+        except:
+            pass
 
 if __name__ == "__main__":
     main()

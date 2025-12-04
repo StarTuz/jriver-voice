@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='jriver-voice-command',
-    version='0.1.0',
+    version='0.2.0',
     py_modules=['jriver_voice', 'config', 'model_manager'],
     data_files=[('', ['config.json'])],  # Include config.json in the package
     install_requires=[

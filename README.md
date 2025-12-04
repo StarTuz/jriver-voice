@@ -66,6 +66,7 @@ Say **"Alice"** to wake up the assistant. Wait for the "Yes?" response, then spe
 *   **"Play [Artist]"** - *e.g., "Play Pink Floyd"*
 *   **"Play [Album]"** - *e.g., "Play Dark Side of the Moon"*
 *   **"Play [Composer]"** - *e.g., "Play Beethoven"*
+*   **"Play random [Genre]"** - *e.g., "Play random Rock", "Play random Classical"*
 *   **"Next track"** / **"Previous track"**
 *   **"Pause"** / **"Stop"** / **"Resume"**
 *   **"What is playing?"**
